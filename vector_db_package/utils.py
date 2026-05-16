@@ -113,7 +113,6 @@ def search_database(query_vector, embeddings, data, K=10):
 	return results
 
 def interface(embeddings, metadata, e_name, d_name):
-	
 	# give user options on terminal
 	menu()
 	selected_num = input()
@@ -134,17 +133,18 @@ def interface(embeddings, metadata, e_name, d_name):
 
 				# make query here
 				top_K_indicies = search_database(query_vector, embeddings, metadata, K)
+				print(top_K_indicies)
 
 				return True, embeddings
 			
 			case "2":
 				should_continue = True
 				while should_continue:
-					mode = input("Enter 0 to log a Website or 1 to log a PDF.")
+					mode = input("Enter 0 to log a Website, or Enter 1 to log a PDF: ")
 
 					# Website URL Entering
 					if mode == "0":
-						url = input("Enter new book URL: ")
+						url = input("Enter new Website URL: ")
 						response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
 						response.raise_for_status()
 						
@@ -159,8 +159,8 @@ def interface(embeddings, metadata, e_name, d_name):
 						
 					# PDF URL Entering
 					elif mode == "1":
-						url = input("Enter new website URL: ")
-						response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+						url = input("Enter new PDF URL: ")
+						response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=30)
 						response.raise_for_status()
 						
 						is_duplicate = check_duplicate(url, metadata)

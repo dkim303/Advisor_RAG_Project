@@ -11,8 +11,8 @@ model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
 if __name__ == "__main__":
     print("Load in embeddings matrix and metadata")
-    e_name = input("Enter embeddings file name: ")
-    d_name = input("Enter metadata file name: ")
+    e_name = input("Enter embeddings file name (ending with .npy): ")
+    d_name = input("Enter metadata file name (ending with .json): ")
 
     try:
         embeddings_path = Path(e_name)
