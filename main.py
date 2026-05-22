@@ -32,9 +32,12 @@ if __name__ == "__main__":
     e_name = input("Enter embeddings file name (ending with .npy): ")
     d_name = input("Enter metadata file name (ending with .json): ")
 
+    e_path = os.path.join(BASE_DIR, "test_files", e_name)
+    d_path = os.path.join(BASE_DIR, "test_files", d_name)
+
     try:
-        embeddings_path = Path(e_name)
-        data_path = Path(d_name)
+        embeddings_path = Path(e_path)
+        data_path = Path(d_path)
 
         # check for mismatch in file existance
         if (embeddings_path.exists() == False and data_path.exists() == True):
@@ -47,13 +50,13 @@ if __name__ == "__main__":
         # later on add function to check if all items in the 2 files match correctly
 
         if embeddings_path.exists():
-            embeddings_matrix = np.load(e_name)
+            embeddings_matrix = np.load(e_path)
         # case of creating empty matrix, dim-384, num vectors is 0
         else:
             embeddings_matrix = np.empty((0,384), dtype=np.float32)
 
         if data_path.exists():
-            with open(d_name) as data_fp:
+            with open(d_path) as data_fp:
                 data = json.load(data_fp)
                 data = {int(k): v for k, v in data.items()}
         else:
