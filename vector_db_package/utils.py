@@ -13,14 +13,14 @@ import os
 
 logger = logging.getLogger(__name__)
 
-def menu():
+def menu() -> None:
 	print(f"Enter 1 to make query.")
 	print("Enter 2 to add new URL to database.")
 	print("Enter q to quit.")
 
 model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
-def add_vectorized_website(url, embeddings, dictionary):
+def add_vectorized_website(url: str, embeddings: np.ndarray, dictionary: dict) -> np.ndarray:
 	response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
 	response.raise_for_status()
 
@@ -45,7 +45,7 @@ def add_vectorized_website(url, embeddings, dictionary):
 	embeddings = np.array(vectors, dtype=np.float32)
 	return embeddings
 
-def chunk_text(text, max_words=500):
+def chunk_text(text: str, max_words=500) -> list:
 	words = text.split()
 	chunks = []
 
@@ -55,7 +55,7 @@ def chunk_text(text, max_words=500):
 
 	return chunks
 
-def add_vectorized_PDF(url, embeddings, dictionary):
+def add_vectorized_PDF(url: str, embeddings: np.ndarray, dictionary: dict) -> np.ndarray:
 	response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
 	response.raise_for_status()
 
@@ -79,24 +79,24 @@ def add_vectorized_PDF(url, embeddings, dictionary):
 	embeddings = np.array(vectors, dtype=np.float32)
 	return embeddings
 
-def update_files(e_name, d_name, embedding_matrix, data):
+def update_files(e_name: str, d_name: str, embedding_matrix: np.ndarray, data: dict) -> None:
 	np.save(e_name, embedding_matrix)
 
 	with open(d_name, "w") as d_fp:
 		json.dump(data, d_fp)
 	
-def check_duplicate(url, dictionary):
+def check_duplicate(url: str, dictionary: dict) -> bool:
 	for index in range(len(dictionary)):
 		if dictionary[index]["url"] == url:
 			return True
 		
 	return False
 
-def cosine_compare(query_vector, target_vector):
+def cosine_compare(query_vector: np.ndarray, target_vector: np.ndarray) -> float:
 	similarity = (query_vector @ target_vector) / (np.linalg.norm(query_vector) * (np.linalg.norm(target_vector)))
 	return similarity
 
-def search_database(query_vector, embeddings, data, K=10):
+def search_database(query_vector: np.ndarray, embeddings: np.ndarray, data: dict, K=10) -> list:
 	# case of trying to search empty database
 	if embeddings.shape[0] == 0:
 		print("Error: database is empty.")
@@ -115,7 +115,7 @@ def search_database(query_vector, embeddings, data, K=10):
 	results = index_cosine_pairs[0:K]
 	return results
 
-def interface(embeddings, metadata, e_name, d_name):
+def interface(embeddings: np.ndarray, data: dict, e_name: str, d_name: str) -> tuple:
 	# give user options on terminal
 	menu()
 	selected_num = input()
@@ -135,7 +135,7 @@ def interface(embeddings, metadata, e_name, d_name):
 					return True, embeddings
 
 				# make query here
-				top_K_indicies = search_database(query_vector, embeddings, metadata, K)
+				top_K_indicies = search_database(query_vector, embeddings, data, K)
 
 				print(top_K_indicies)
 				logging.info(f"Query executed: {query}")
@@ -152,12 +152,12 @@ def interface(embeddings, metadata, e_name, d_name):
 						response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
 						response.raise_for_status()
 						
-						is_duplicate = check_duplicate(url, metadata)
+						is_duplicate = check_duplicate(url, data)
 						if is_duplicate == True:
 							raise ValueError("Error: URL already logged.")
 						
-						embeddings = add_vectorized_website(url, embeddings, metadata)
-						update_files(e_name, d_name, embeddings, metadata)
+						embeddings = add_vectorized_website(url, embeddings, data)
+						update_files(e_name, d_name, embeddings, data)
 
 						print("Success: Website Added.")
 						logging.info(f"Website successfully added: {url}")
@@ -169,12 +169,12 @@ def interface(embeddings, metadata, e_name, d_name):
 						response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=30)
 						response.raise_for_status()
 						
-						is_duplicate = check_duplicate(url, metadata)
+						is_duplicate = check_duplicate(url, data)
 						if is_duplicate == True:
 							raise ValueError("Error: URL already logged.")
 						
-						embeddings = add_vectorized_PDF(url, embeddings, metadata)
-						update_files(e_name, d_name, embeddings, metadata)
+						embeddings = add_vectorized_PDF(url, embeddings, data)
+						update_files(e_name, d_name, embeddings, data)
 
 						print("Success: PDF Added.")
 						logging.info(f"PDF successfully added: {url}")

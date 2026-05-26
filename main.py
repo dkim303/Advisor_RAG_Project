@@ -28,9 +28,9 @@ if __name__ == "__main__":
     )
     logging.info("Program Started")
 
-    print("Load in embeddings matrix and metadata")
+    print("Load in embeddings matrix and data")
     e_name = input("Enter embeddings file name (ending with .npy): ")
-    d_name = input("Enter metadata file name (ending with .json): ")
+    d_name = input("Enter data file name (ending with .json): ")
 
     e_path = os.path.join(BASE_DIR, "test_files", e_name)
     d_path = os.path.join(BASE_DIR, "test_files", d_name)
