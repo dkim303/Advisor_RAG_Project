@@ -11,14 +11,18 @@ from pathlib import Path
 import logging
 import os
 
+
 logger = logging.getLogger(__name__)
+
 
 def menu() -> None:
 	print(f"Enter 1 to make query.")
 	print("Enter 2 to add new URL to database.")
 	print("Enter q to quit.")
 
+
 model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+
 
 def add_vectorized_website(url: str, embeddings: np.ndarray, dictionary: dict) -> np.ndarray:
 	response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
@@ -45,6 +49,7 @@ def add_vectorized_website(url: str, embeddings: np.ndarray, dictionary: dict) -
 	embeddings = np.array(vectors, dtype=np.float32)
 	return embeddings
 
+
 def chunk_text(text: str, max_words=500) -> list:
 	words = text.split()
 	chunks = []
@@ -54,6 +59,7 @@ def chunk_text(text: str, max_words=500) -> list:
 		chunks.append(chunk)
 
 	return chunks
+
 
 def add_vectorized_PDF(url: str, embeddings: np.ndarray, dictionary: dict) -> np.ndarray:
 	response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
@@ -79,12 +85,14 @@ def add_vectorized_PDF(url: str, embeddings: np.ndarray, dictionary: dict) -> np
 	embeddings = np.array(vectors, dtype=np.float32)
 	return embeddings
 
+
 def update_files(e_name: str, d_name: str, embedding_matrix: np.ndarray, data: dict) -> None:
 	np.save(e_name, embedding_matrix)
 
 	with open(d_name, "w") as d_fp:
 		json.dump(data, d_fp)
 	
+
 def check_duplicate(url: str, dictionary: dict) -> bool:
 	for index in range(len(dictionary)):
 		if dictionary[index]["url"] == url:
@@ -92,9 +100,6 @@ def check_duplicate(url: str, dictionary: dict) -> bool:
 		
 	return False
 
-def cosine_compare(query_vector: np.ndarray, target_vector: np.ndarray) -> float:
-	similarity = (query_vector @ target_vector) / (np.linalg.norm(query_vector) * (np.linalg.norm(target_vector)))
-	return similarity
 
 def search_database(query_vector: np.ndarray, embeddings: np.ndarray, data: dict, K=10) -> list:
 	# case of trying to search empty database
@@ -114,6 +119,7 @@ def search_database(query_vector: np.ndarray, embeddings: np.ndarray, data: dict
 
 	results = index_cosine_pairs[0:K]
 	return results
+
 
 def interface(embeddings: np.ndarray, data: dict, e_name: str, d_name: str) -> tuple:
 	# give user options on terminal
@@ -203,3 +209,8 @@ def interface(embeddings: np.ndarray, data: dict, e_name: str, d_name: str) -> t
 		logging.info("HTTPS request failed")
 		print(e)
 		return True, embeddings
+	
+
+def cosine_compare(query_vector: np.ndarray, target_vector: np.ndarray) -> float:
+	similarity = (query_vector @ target_vector) / (np.linalg.norm(query_vector) * (np.linalg.norm(target_vector)))
+	return similarity
