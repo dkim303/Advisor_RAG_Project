@@ -1,0 +1,19 @@
+postgre:
+  host: 
+  port:
+  database:
+  schema:
+  username:
+  password:
+
+tables:
+  advisors:
+  documents:
+  chunks:
+  advisor_documents:
+
+logging:
+  logging_location:
+
+sentence_transformer:
+  model:

@@ -12,33 +12,32 @@ import time
 import pandas as pd
 import numpy as np
 import psycopg
+import argparse
 
-from vector_db_package.ETL_utils import (
+from vector_db_package.database_utils import (
     get_config,
-    get_connection
+    get_connection,
+    setup_logging
 )
 
-model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+from vector_db_package.schema_utils import (
+    get_advisors,
+    advisor_exists,
+    create_new_advisor,
+    check_table_exists
+)
 
 def main(config_file: str):
-    # initialize paths and files for logging
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    LOG_DIR = os.path.join(BASE_DIR, "logs")
-    #makes logs directory if it DNE, exists_ok=True prevents error if it already exis
-    os.makedirs(LOG_DIR, exist_ok=True)
-    timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
-
-    LOG_FILE = os.path.join(LOG_DIR, f"Database_{timestamp}.log")
-    logging.basicConfig(
-        filename=LOG_FILE,
-        level = logging.INFO,
-        format = "%(asctime)s - %(levelname)s - %(name)s - %(filename)s:%(lineno)d - %(message)s"
-    )
-    logging.info("Program Started")
-
     try:
-        sql_information = get_config(config_file)
-        conn, cur = get_connection(sql_information)
+        postgres_info, table_info, logging_info, sentence_transformer = get_config(config_file)
+        conn, cur = get_connection(postgres_info)    
+        model = SentenceTransformer(sentence_transformer.get("model"))
+        log_file = setup_logging(logging_info)
+
+        logging.info("Program Started")
+        logging.info("Log file: %s", log_file)
+
+        is_ended = False
 
         while not is_ended:
             print() 
@@ -51,4 +50,10 @@ def main(config_file: str):
         cur.close()
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--config_file", required=True, help="Configuration File Path")
+
+    args = parser.parse_args()
+
+    main(args.config_file)
