@@ -11,7 +11,7 @@ __pycache__/
 # Environment/config files
 .env
 .env.*
-*.yml
+configs/*.yml
 
 # Logs
 *.log
