@@ -28,7 +28,7 @@ from vector_db_package.schema_utils import (
     check_table_exists
 )
 
-def main(config_file: str):
+def main(config_file_name: str):
 
     run_status = "Failure"
     is_ended = False
@@ -40,7 +40,7 @@ def main(config_file: str):
     job_type = "ingestion"
 
     try:
-        postgres_info, table_info, logging_info, sentence_transformer = get_config(config_file)
+        postgres_info, table_info, logging_info, sentence_transformer, _ = get_config(config_file_name)
 
         postgres_schema = postgres_info.get("schema")
         advisors_table = table_info.get("advisors")

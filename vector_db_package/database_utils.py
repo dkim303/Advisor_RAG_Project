@@ -16,11 +16,11 @@ from pathlib import Path
 from sentence_transformers import SentenceTransformer
 import hashlib
 
-def get_config(config_file_path: str) -> tuple[dict, dict, dict, dict]:
-    config_path = Path(config_file_path).expanduser().resolve()
+def get_config(config_file_name: str) -> tuple[dict, dict, dict, dict, dict]:
+    project_root = Path(__file__).resolve().parents[1]
+    config_path = project_root / "configs" / config_file_name
 
-    if not config_path.exists():
-        raise FileNotFoundError(f"Config file not found: {config_path}")
+    config_path = config_path.expanduser().resolve()
 
     with config_path.open("r") as config:
         config_info = yaml.safe_load(config)
@@ -30,13 +30,14 @@ def get_config(config_file_path: str) -> tuple[dict, dict, dict, dict]:
 
 
     # Read YAML file for information:
-    with open(config_file_path, "r") as config:
+    with open(config_file_name, "r") as config:
         config_info = yaml.safe_load(config)
 
         postgres_info = config_info.get("postgres")
         table_info = config_info.get("tables")
         logging_info = config_info.get("logging")
         sentence_transformer = config_info.get("sentence_transformer")
+        ollama_info = config_info.get("ollama")
 
         host = postgres_info.get("host")
         port = postgres_info.get("port")
@@ -56,6 +57,9 @@ def get_config(config_file_path: str) -> tuple[dict, dict, dict, dict]:
         DEFAULT_EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
         model = sentence_transformer.get("model")
 
+        DEFAULT_OLLAMA_MODEL = "gemma4"
+        gemma_model = ollama_info.get("model")
+
         # Ensure all information is valid
         if any(x is None for x in (host, port, database, schema, username, password, advisors, documents, chunks, advisor_documents, etl_history, logging_location)):
             raise ValueError("Critical Error: invalid config file information")
@@ -63,7 +67,10 @@ def get_config(config_file_path: str) -> tuple[dict, dict, dict, dict]:
         if model is None:
             sentence_transformer["model"] = DEFAULT_EMBEDDING_MODEL
 
-    return postgres_info, table_info, logging_info, sentence_transformer
+        if gemma_model is None:
+            ollama_info["model"] = DEFAULT_OLLAMA_MODEL
+
+    return postgres_info, table_info, logging_info, sentence_transformer, ollama_info
 
 
 def get_connection(postgres_info: dict) -> tuple[psycopg.Connection, psycopg.Cursor]:
