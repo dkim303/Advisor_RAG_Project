@@ -1,0 +1,23 @@
+postgre:
+  host: 
+  port:
+  database:
+  schema:
+  username:
+  password:
+
+tables:
+  advisors:
+  documents:
+  chunks:
+  advisor_documents:
+
+logging:
+  logging_location:
+
+sentence_transformer:
+  model:
+  # default to "sentence-transformers/all-MiniLM-L6-v2"
+
+ollama:
+  model:
